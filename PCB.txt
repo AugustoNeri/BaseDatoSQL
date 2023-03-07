@@ -1,0 +1,223 @@
+create procedure csaleenf
+as
+begin
+select *
+from aleenf
+end
+
+
+create procedure csalergia
+as
+begin
+select *
+from alergia
+end
+
+
+create procedure cscalle
+as
+begin
+select *
+from calle
+end
+
+create procedure cscolonia
+as
+begin
+select *
+from colonia
+end
+
+create procedure cscomponente
+as
+begin
+select *
+from componente
+end
+
+create procedure csdelegacion
+as
+begin
+select *
+from delegacion
+end
+
+create procedure csdiagnostico
+as
+begin
+select *
+from diagnostico
+end
+
+create procedure csdoctor
+as
+begin
+Select ID_D,NOM_D,CED_D,NOM_ED,NOM_HR 
+from especialidad inner join doctor on especialidad.ID_ED=doctor.ID_ED1 inner join horario on doctor.ID_HR1=horario.ID_HR 
+end
+
+create procedure csendia 
+as
+begin
+Select NOM_ENF,NOM_DIAG,NOM_D,NUM_M,RECON_E,FECHA_PC,FECHA_C,TIEM_E,STAD_E 
+FROM enfermo inner join ENDIA on enfermo.CLAVE_ENF=endia.CLAVE_E6 inner join diagnostico on endia.ID_DIAG1=diagnostico.ID_DIAG inner join doctor on endia.ID_D1=doctor.ID_D
+end
+
+create procedure csenfer
+as
+begin
+Select CLAVE_ENF,NOM_ENF,NOM_EMF
+FROM enfermo join enfer on enfermo.CLAVE_ENF=enfer.CLAVE_E2 join enfermedad on enfer.ID_ENF2=enfermedad.ID_EMF
+end
+
+
+
+
+create procedure csenfermedad
+as
+begin
+select *
+from enfermedad
+end
+
+create procedure csenfermo
+as
+begin
+Select CLAVE_ENF,NOM_ENF,FEHE_ENF,FEHS_ENF,NOM_CALLE,NOM_COL,NOM_DEL,CP_ENF,NOM_TE,NOM_TS 
+from calle inner join enfermo on calle.ID_CA=enfermo.ID_CA1 inner join colonia on enfermo.ID_CO1=colonia.ID_COL inner join delegacion on enfermo.ID_DEL1=delegacion.ID_DEL join tipoenf on enfermo.ID_EN1=tipoenf.ID_TE join tipo_sangre on enfermo.ID_TS1=tipo_sangre.ID_TS
+end
+
+create procedure csespecialidad
+as
+begin
+select *
+from especialidad
+end
+
+create procedure cshorario
+as
+begin
+select *
+from horario
+end
+
+create procedure cslaboratorio
+as
+begin
+select *
+from laboratorio
+end
+
+create procedure csmeco
+as
+begin
+select NOM_MED,NOM_COM 
+from medicamento inner join meco on medicamento.ID_MED=meco.ID_MED4 inner join componente on meco.ID_COM1=componente.ID_COM
+end
+
+create procedure csmedicamento
+as
+begin
+select *
+from medicamento
+end
+
+create procedure csmeen
+as
+begin
+Select NOM_ENF,NOM_MED,DOSIS_MR,TIEMPO FROM enfermo inner join meen on enfermo.CLAVE_ENF=meen.CLAVE_E7 inner join medicamento on meen.ID_MED6=medicamento.ID_MED
+end
+
+create procedure csmela
+as
+begin
+Select ID_MED,NOM_MED,NOM_LAB 
+from laboratorio inner join mela on laboratorio.ID_LAB=mela.ID_LAB1 inner join medicamento on MELA.ID_MED3=medicamento.ID_MED
+end
+
+create procedure csmepe
+as
+begin
+Select NOM_MED,NOM_PREN
+from medicamento inner join mepe on medicamento.ID_MED=mepe.ID_MED1 inner join presentacion on mepe.ID_PRE1=presentacion.ID_PRE
+end
+
+create procedure csmeun
+as
+begin
+Select NOM_MED,NOM_UN
+from medicamento inner join meun on medicamento.ID_MED=meun.ID_MED5 inner join unidad on meun.ID_UN1=unidad.ID_UN
+end
+
+
+create procedure csmeviad
+as
+begin
+Select NOM_MED,NOM_va
+from medicamento inner join meviad on medicamento.ID_MED=meviad.ID_MED2 inner join viaadmon on meviad.ID_VIA1=viaadmon.id_via
+end
+
+create procedure cspresentacion
+as
+begin
+Select *
+from presentacion
+end
+
+create procedure cstiposangre
+as
+begin
+Select *
+from tipo_sangre
+end
+
+create procedure cstipoenf
+as
+begin
+Select *
+from tipoenf
+end
+
+create procedure cstifer
+as
+begin
+Select NOM_ENF,TELEFONO,TIPO_TEL 
+FROM enfermo inner join tifer on enfermo.CLAVE_ENF=tifer.CLAVE_E3 inner join tipotel on tifer.ID_TEL1=TIPOTEL.ID_TEL
+end
+
+create procedure cstipoen
+as
+begin
+Select NOM_ENF,NOM_TPR 
+FROM enfermo inner join tipoen on enfermo.CLAVE_ENF=tipoen.CLAVE_E5 inner join tipopar on tipoen.ID_TPAR1=tipopar.ID_TPR
+end
+
+create procedure cstipopar
+as
+begin
+Select *
+from tipopar
+end
+
+create procedure cstipotel
+as
+begin
+Select *
+from tipotel
+end
+
+create procedure csunidad
+as
+begin
+Select *
+from unidad
+end
+
+create procedure csviaadmon
+as
+begin
+Select *
+from viaadmon
+end
+
+

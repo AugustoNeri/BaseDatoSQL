@@ -1,0 +1,1180 @@
+CREATE DATABASE SAVM
+USE SAVM
+
+-----------------------------------------------------------------------------------------------------------------ESPECIALIDAD
+CREATE TABLE ESPECIALIDAD(
+ID_ED VARCHAR(7) PRIMARY KEY,
+NOM_ED VARCHAR(50))
+
+INSERT INTO ESPECIALIDAD VALUES('0','FARMACOLOGIA')
+
+
+SELECT *
+FROM ESPECIALIDAD
+drop trigger admin1
+
+DROP TRIGGER ADMIN1
+CREATE TRIGGER ADMIN1
+ON ESPECIALIDAD
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDED VARCHAR(7)
+DECLARE @NOMES VARCHAR(50)
+select @IDED=I.ID_ED,@NOMES=I.NOM_ED
+FROM inserted I
+--DUPLICACION
+if(EXISTS(select * from ESPECIALIDAD where @IDED<>ESPECIALIDAD.ID_ED and @NOMES=ESPECIALIDAD.NOM_ED))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+update ESPECIALIDAD
+set NOM_ED=upper(NOM_ED),
+ID_ED=UPPER(CHAR(69)+CHAR(83)+CHAR(45)+LEFT(LEN(NOM_ED),1)+LEFT(ASCII(UPPER(REVERSE(NOM_ED))),2)+LEFT(NOM_ED,1))
+where ID_ED=@IDED
+commit transaction
+end
+END
+
+CREATE PROCEDURE ENESPECIALIDAD
+AS
+UPDATE ESPECIALIDAD 
+SET 
+NOM_ED=REVERSE(REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((NOM_ED),'A','#')),'E','%')),'I','/')),'O','$')),'U','{')),'M','?')),'S','+')),'P','=')),'N','\')),'L','*'))
+FROM ESPECIALIDAD
+
+EXEC ENESPECIALIDAD
+select *
+from especialidad
+
+CREATE PROCEDURE DESESPECIALIDAD
+AS
+UPDATE ESPECIALIDAD SET
+NOM_ED=REVERSE(REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((NOM_ED),'#','A')),'%','E')),'/','I')),'$','O')),'{','U')),'?','M')),'+','S')),'=','P')),'\','N')),'*','L'))
+FROM ESPECIALIDAD
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------horario
+CREATE TABLE HORARIO(
+ID_HR VARCHAR(7) PRIMARY KEY,
+NOM_HR VARCHAR(50)
+)
+drop table horario
+
+INSERT INTO HORARIO values('0','matutino')
+SELECT *
+FROM HORARIO
+
+CREATE TRIGGER ADMIN2
+ON HORARIO
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDHR VARCHAR(7)
+DECLARE @NOMHR VARCHAR(50)
+select @IDHR=I.ID_HR,@NOMHR=I.NOM_HR
+FROM inserted I
+--DUPLICACION
+if(EXISTS(select * from HORARIO where @IDHR<>HORARIO.ID_HR and @NOMHR=HORARIO.NOM_HR))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+--ASIGNACION DE LA CLAVE
+UPDATE HORARIO
+SET ID_HR=UPPER(CHAR(72)+CHAR(82)+CHAR(45)+LEFT(LEN(NOM_HR),1)+LEFT(ASCII(UPPER(REVERSE(NOM_HR))),2)+LEFT(NOM_HR,1)),
+NOM_HR=UPPER(NOM_HR)
+where ID_HR=@IDHR
+end
+END
+
+
+CREATE PROCEDURE ENHORARIO
+AS
+UPDATE HORARIO SET
+NOM_HR=REVERSE(REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((NOM_HR),'A','#')),'E','%')),'I','/')),'O','$')),'U','{')),'M','?')),'S','+')),'P','=')),'N','\')),'L','*'))
+FROM HORARIO
+
+CREATE PROCEDURE DESHORARIO
+AS
+UPDATE HORARIO SET
+NOM_HR=REVERSE(REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((NOM_HR),'#','A')),'%','E')),'/','I')),'$','O')),'{','U')),'?','M')),'+','S')),'=','P')),'\','N')),'*','L'))
+FROM HORARIO
+
+-------------------------------------------------------------------------------------------------------------------------------DOCTOR
+
+CREATE TABLE DOCTOR(
+ID_D VARCHAR(7) PRIMARY KEY,
+NOM_D VARCHAR(150),
+CED_D BIGINT,
+ID_ED1 VARCHAR(7),
+ID_HR1 VARCHAR(7),
+CONSTRAINT FK_IDE1 FOREIGN KEY(ID_ED1) REFERENCES ESPECIALIDAD(ID_ED),
+CONSTRAINT FK_IDHR1 FOREIGN KEY(ID_HR1) REFERENCES HORARIO(ID_HR),
+CHECK(CED_D>0 AND CED_D<99999))  
+
+
+INSERT INTO DOCTOR VALUES('0','JUAN',24324,'ES-165F','HR-879M')
+SELECT *
+FROM DOCTOR
+
+
+CREATE TRIGGER ADMIN3
+ON DOCTOR
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDD VARCHAR(7)
+DECLARE @NOMD VARCHAR(150)
+DECLARE @CEDD INT
+select @IDD=i.ID_D,@NOMD=i.NOM_D,@CEDD=i.CED_D
+from inserted i
+--DUPLICACION
+if(EXISTS(select * from DOCTOR where @IDD<>DOCTOR.ID_D and @NOMD=DOCTOR.NOM_D))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+--ASIGNACION DE LA CLAVE
+update DOCTOR
+set ID_D=UPPER(CHAR(68)+CHAR(82)+CHAR(45)+LEFT(LEN(NOM_D),1)+LEFT(ASCII(UPPER(REVERSE(NOM_D))),2)+LEFT(NOM_D,1)),
+NOM_D=UPPER(NOM_D)
+where ID_D=@IDD
+commit transaction
+end
+END
+
+CREATE PROCEDURE ENDOCTOR
+AS
+UPDATE DOCTOR SET
+NOM_D=REVERSE(REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((NOM_D),'A','#')),'E','%')),'I','/')),'O','$')),'U','{')),'M','?')),'S','+')),'P','=')),'N','\')),'L','*'))
+FROM DOCTOR
+
+CREATE PROCEDURE DESDOCTOR
+UPDATE DOCTOR SET
+NOM_D=REVERSE(REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((REPLACE((NOM_D),'#','A')),'%','E')),'/','I')),'$','O')),'{','U')),'?','M')),'+','S')),'=','P')),'\','N')),'*','L'))
+FROM DOCTOR
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------DIAGNOSTICO
+CREATE TABLE DIAGNOSTICO(
+ID_DIAG VARCHAR(7) PRIMARY KEY,
+NOM_DIAG VARCHAR(50)
+)
+
+
+CREATE TRIGGER ADMIN4
+ON DIAGNOSTICO
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDDIAG VARCHAR(7)
+DECLARE @NODIAG VARCHAR(50)
+select @IDDIAG=I.ID_DIAG,@NODIAG=I.NOM_DIAG
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from DIAGNOSTICO where @IDDIAG<>DIAGNOSTICO.ID_DIAG and @NODIAG=DIAGNOSTICO.NOM_DIAG ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'REGISTRO CON EXITO'
+commit transaction
+update DIAGNOSTICO
+set 
+--ASIGNACION DE CLAVE PRIMARIA
+ID_DIAG=UPPER(CHAR(68)+CHAR(71)+CHAR(45)+LEFT(LEN(NOM_DIAG),1)+LEFT(ASCII(UPPER(REVERSE(NOM_DIAG))),2)+LEFT(NOM_DIAG,1)),
+NOM_DIAG=upper(NOM_DIAG)
+where ID_DIAG=@IDDIAG
+end
+END
+
+INSERT INTO DIAGNOSTICO VALUES ('0','SALUDABLE')
+SELECT *
+FROM DIAGNOSTICO
+
+
+----------------------------------------------------------------------------------------------------------------------------------TIPOTEL
+CREATE TABLE TIPOTEL(
+ID_TEL VARCHAR(7) PRIMARY KEY,
+TIPO_TEL VARCHAR(50))
+
+
+DROP TRIGGER ADMIN5
+CREATE TRIGGER ADMIN5
+ON TIPOTEL
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDTEL VARCHAR(7)
+DECLARE @TIPTEL VARCHAR(50)
+select @IDTEL=I.ID_TEL,@TIPTEL=I.TIPO_TEL
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from TIPOTEL where @IDTEL<>TIPOTEL.ID_TEL and @TIPTEL=TIPOTEL.TIPO_TEL ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+--ASIGNACION DE CLAVE PRIMARIA
+update TIPOTEL
+set TIPO_TEL=upper(TIPO_TEL),
+ID_TEL=UPPER(CHAR(84)+CHAR(84)+CHAR(45)+LEFT(LEN(TIPO_TEL),1)+LEFT(ASCII(UPPER(REVERSE(TIPO_TEL))),2)+LEFT(TIPO_TEL,1))
+where id_tel=@IDTEL
+commit transaction
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------tipoenf
+CREATE TAble TIPOENF(
+ID_TE VARCHAR(7) PRIMARY KEY,
+NOM_TE VARCHAR(150))
+
+
+CREATE TRIGGER ADMIN6
+ON TIPOENF
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDTE VARCHAR(7)
+DECLARE @NOMTE VARCHAR(50)
+select @IDTE=I.ID_TE,@NOMTE=I.NOM_TE
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from TIPO_ENF where @IDTE<>TIPOENF.ID_TE and @NOMTE=TIPOENF.NOM_TE ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+--ASIGNACION DE CLAVE PRIMARIA
+update TIPOENF
+set NOM_TE=upper(NOM_TE),
+ID_TE=UPPER(CHAR(84)+CHAR(69)+CHAR(45)+LEFT(LEN(NOM_TE),1)+LEFT(ASCII(UPPER(REVERSE(NOM_TE))),2)+LEFT(NOM_TE,1))
+where id_TE=@IDTE
+commit transaction
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------colonia
+CREATE TABLE COLONIA(
+ID_COL VARCHAR(7) PRIMARY KEY,
+NOM_COL VARCHAR(50))
+
+insert into colonia values('0','balbuena')
+select *
+from colonia
+
+CREATE TRIGGER ADMIN7
+ON COLONIA
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDCO VARCHAR(7)
+DECLARE @NOMCO VARCHAR(50)
+select @IDCO=I.ID_COL,@NOMCO=I.NOM_COL
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from COLONIA where @IDCO<>COLONIA.ID_COL and @NOMCO=COLONIA.NOM_COL ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+--ASIGNACION DE CLAVE PRIMARIA
+update COLONIA
+set NOM_COL=upper(NOM_COL),
+ID_COL=UPPER(CHAR(67)+CHAR(79)+CHAR(45)+LEFT(LEN(NOM_COL),1)+LEFT(ASCII(UPPER(REVERSE(NOM_COL))),2)+LEFT(NOM_COL,1))
+where id_COL=@IDCO
+commit transaction
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------calle
+CREATE TABLE CALLE(
+ID_CA VARCHAR(7) PRIMARY KEY,
+NOM_CALLE VARCHAR(70))
+
+insert into calle values('0','reforma')
+select *
+from calle
+
+CREATE TRIGGER ADMIN8
+ON CALLE
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDCA VARCHAR(7)
+DECLARE @NOCA VARCHAR(50)
+select @IDCA=I.ID_CA,@NOCA=I.NOM_CALLE
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from CALLE where @IDCA<>CALLE.ID_CA and @NOCA=CALLE.NOM_CALLE ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+update CALLE
+set
+--ASIGNACION DE CLAVE PRIMARIA
+ID_CA=UPPER(CHAR(67)+CHAR(65)+CHAR(45)+LEFT(LEN(NOM_CALLE),1)+LEFT(ASCII(UPPER(REVERSE(NOM_CALLE))),2)+LEFT(NOM_CALLE,1)),
+NOM_CALLE=upper(NOM_CALLE)
+where id_CA=@IDCA
+commit transaction
+end
+END
+------------------------------------------------------------------------------------------------------------------------------presentacion
+
+CREATE TABLE PRESENTACION(
+ID_PRE VARCHAR(7) PRIMARY KEY,
+NOM_PREN VARCHAR(50))
+
+insert into presentacion values('0','botellas')
+insert into presentacion values('0','capsulas')
+
+select *
+from presentacion
+
+
+CREATE TRIGGER ADMIN9
+ON PRESENTACION
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDPRE VARCHAR(7)
+DECLARE @NOPRE VARCHAR(50)
+select @IDPRE=I.ID_PRE,@NOPRE=I.NOM_PREN
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from PRESENTACION where @IDPRE<>PRESENTACION.ID_PRE and @NOPRE=PRESENTACION.NOM_PREN ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+update PRESENTACION
+set NOM_PREN=upper(NOM_PREN),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_PRE=UPPER(CHAR(80)+CHAR(82)+CHAR(45)+LEFT(LEN(NOM_PREN),1)+LEFT(ASCII(UPPER(REVERSE(NOM_PREN))),2)+LEFT(NOM_PREN,1))
+where ID_PRE=@IDPRE
+commit transaction
+end
+END
+------------------------------------------------------------------------------------------------------------------------------viadadmon
+
+CREATE TABLE VIAADMON(
+ID_VIA VARCHAR(7) PRIMARY KEY,
+NOM_VA VARCHAR(50))
+
+
+CREATE TRIGGER ADMIN10
+ON VIAADMON
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDVI VARCHAR(7)
+DECLARE @NOVI VARCHAR(50)
+select @IDVI=I.ID_VIA,@NOVI=I.NOM_VA
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from VIAADMON where @IDVI<>VIAADMON.ID_VIA and @NOVI=VIAADMON.NOM_VA ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+update VIAADMON
+set NOM_VA=upper(NOM_VA),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_VIA=UPPER(CHAR(86)+CHAR(73)+CHAR(45)+LEFT(LEN(NOM_VA),1)+LEFT(ASCII(UPPER(REVERSE(NOM_VA))),2)+LEFT(NOM_VA,1))
+where ID_VIA=@IDVI
+commit transaction
+end
+END
+--ENCRIPTACION
+UPDATE VIAADMON
+SET NOM_VA=reverse(replace((replace((replace((replace((replace((NOM_VA),'u','*')),'o','-')),'i','1')),'A','3')),'E','7'))
+UPDATE VIAADMON
+SET NOM_VA=reverse(replace((replace((replace((replace((replace((NOM_VA),'*','U')),'-','O')),'1','I')),'3','A')),'7','E'))
+
+
+------------------------------------------------------------------------------------------------------------------------------laboratorio
+CREATE TABLE LABORATORIO(
+ID_LAB VARCHAR(7) PRIMARY KEY,
+NOM_LAB VARCHAR(50))
+
+INSERT INTO LABORATORIO VALUES('0','LAB')
+SELECT *
+FROM LABORATORIO
+
+
+CREATE TRIGGER ADMIN11 -----------------------TRIGGER LABORATORIO
+ON LABORATORIO
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDLAB VARCHAR(7)
+DECLARE @NOMLAB VARCHAR(50)
+SELECT @IDLAB=Z.ID_LAB,@NOMLAB=Z.NOM_LAB
+FROM inserted Z
+--DUPLICIDAD
+if(EXISTS(select * from LABORATORIO 
+where @IDLAB<>LABORATORIO.ID_LAB and @NOMLAB=LABORATORIO.NOM_LAB ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro ok'
+update LABORATORIO
+set NOM_LAB=upper(NOM_LAB),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_LAB=UPPER(CHAR(76)+CHAR(65)+CHAR(45)+LEFT(LEN(NOM_LAB),1)+LEFT(ASCII(UPPER(REVERSE(NOM_LAB))),2)+LEFT(NOM_LAB,1))
+WHERE ID_LAB=@IDLAB
+commit transaction
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------componente
+CREATE TABLE COMPONENTE(
+ID_COM VARCHAR(7) PRIMARY KEY,
+NOM_COM VARCHAR(50))
+
+
+CREATE TRIGGER ADMIN12 -----------------------TRIGGER COMPONENTE
+ON COMPONENTE
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDCOM VARCHAR(7)
+DECLARE @NOMCOM VARCHAR(50)
+SELECT @IDCOM=X.ID_COM,@NOMCOM=X.NOM_COM
+FROM inserted X
+--DUPLICIDAD
+if(EXISTS(select * from COMPONENTE 
+where @IDCOM<>COMPONENTE.ID_COM and @NOMCOM=COMPONENTE.NOM_COM ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro ok'
+update COMPONENTE
+set NOM_COM=upper(NOM_COM),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_COM=UPPER(CHAR(67)+CHAR(77)+CHAR(45)+LEFT(LEN(NOM_COM),1)+LEFT(ASCII(UPPER(REVERSE(NOM_COM))),2)+LEFT(NOM_COM,1))
+WHERE ID_COM=@IDCOM
+commit transaction
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------unidad
+CREATE TABLE UNIDAD(
+ID_UN VARCHAR(7) PRIMARY KEY,
+NOM_UN VARCHAR(50),
+NUM_UNI INT,
+PRECIO_UNI FLOAT,
+TOTAL_UNI FLOAT,
+CHECK(NUM_UNI>0),
+CHECK(PRECIO_UNI>0),
+CHECK(TOTAL_UNI>0))
+
+DROP TABLE UNIDAD
+
+CREATE TRIGGER ADMIN13 -----------------------TRIGGER UNIDAD
+ON UNIDAD
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDUN VARCHAR(7)
+DECLARE @NOMUN VARCHAR(50)
+SELECT @IDUN=C.ID_UN,@NOMUN=C.NOM_UN
+FROM inserted C
+--DUPLICIDAD
+if(EXISTS(select * from UNIDAD 
+where @IDUN<>UNIDAD.ID_UN and @NOMUN=UNIDAD.NOM_UN ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro ok'
+update UNIDAD
+set NOM_UN=upper(NOM_UN),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_UN=UPPER(CHAR(85)+CHAR(78)+CHAR(45)+LEFT(LEN(NOM_UN),1)+LEFT(ASCII(UPPER(REVERSE(NOM_UN))),2)+LEFT(NOM_UN,1))
+commit transaction
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------medicamento
+CREATE TABLE MEDICAMENTO(
+ID_MED VARCHAR(7) PRIMARY KEY,
+NOM_MED VARCHAR(150))
+
+insert into medicamento values('0','paracetamol')
+insert into medicamento values('0','tabalon')
+select *
+from medicamento
+
+CREATE TRIGGER ADMIN14
+ON MEDICAMENTO
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDMED VARCHAR(7)
+DECLARE @NOMED VARCHAR(50)
+select @IDMED=I.ID_MED,@NOMED=I.NOM_MED
+FROM inserted I
+--DUPLICACION
+if(EXISTS(select * from MEDICAMENTO where @IDMED<>MEDICAMENTO.ID_MED and @NOMED=MEDICAMENTO.NOM_MED))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+update MEDICAMENTO
+set NOM_MED=upper(NOM_MED),
+ID_MED=UPPER(CHAR(77)+CHAR(69)+CHAR(45)+LEFT(LEN(NOM_MED),1)+LEFT(ASCII(UPPER(REVERSE(NOM_MED))),2)+LEFT(NOM_MED,1))
+where ID_MED=@IDMED
+commit transaction
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------mepe
+CREATE TABLE MEPE(
+ID_MED1 VARCHAR(7),
+ID_PRE1 VARCHAR(7),
+CONSTRAINT FK_IDME1 FOREIGN KEY(ID_MED1) REFERENCES MEDICAMENTO(ID_MED),
+CONSTRAINT FK_IPR1 FOREIGN KEY(ID_PRE1) REFERENCES PRESENTACION(ID_PRE))
+
+insert into mepe values('me-176P','pr-883b')
+
+CREATE TRIGGER ADMIN15
+ON MEPE
+FOR INSERT
+AS
+BEGIN
+DECLARE @IDMED1 VARCHAR(7)  
+DECLARE @IDPRE1 VARCHAR(7)
+DECLARE @X INT
+select @IDMED1=LOWER(I.ID_MED1),@IDPRE1=I.ID_PRE1 FROM inserted I
+SET @X=ASCII(@IDMED1)
+--DUPLICACION
+if(EXISTS(select * from MEPE where @IDMED1=MEPE.ID_MED1 and @IDPRE1=MEPE.ID_PRE1 AND @X<>ASCII(MEPE.ID_MED1)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE MEPE
+SET ID_MED1=UPPER(ID_MED1),
+ID_PRE1=UPPER(ID_PRE1)
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------meviad
+CREATE TABLE MEVIAD(
+ID_MED2 VARCHAR(7),
+ID_VIA1 VARCHAR(7),
+CONSTRAINT FK_IDMED2 FOREIGN KEY(ID_MED2) REFERENCES MEDICAMENTO(ID_MED),
+CONSTRAINT FK_IDVIA1 FOREIGN KEY(ID_VIA1) REFERENCES VIAADMON(ID_VIA))
+
+CREATE TRIGGER ADMIN16
+ON MEVIAD
+FOR INSERT
+AS
+BEGIN
+DECLARE @IDMED2 VARCHAR(7)  
+DECLARE @IDVIA1 VARCHAR(7)
+DECLARE @X INT
+select @IDMED2=LOWER(I.ID_MED2),@IDVIA1=I.ID_VIA1 FROM inserted I
+SET @X=ASCII(@IDMED2)
+--DUPLICACION
+if(EXISTS(select * from MEVIAD where @IDMED2=MEVIAD.ID_MED2 and @IDVIA1=MEVIAD.ID_VIA1 AND @X<>ASCII(MEVIAD.ID_MED2)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE MEVIAD
+SET ID_MED2=UPPER(ID_MED2),ID_VIA1=UPPER(ID_VIA1)
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------mela
+CREATE TABLE MELA(
+ID_MED3 VARCHAR(7),
+ID_LAB1 VARCHAR(7),
+CONSTRAINT FK_IDMED3 FOREIGN KEY(ID_MED3) REFERENCES MEDICAMENTO(ID_MED),
+CONSTRAINT FK_IDLAB1 FOREIGN KEY(ID_LAB1) REFERENCES LABORATORIO(ID_LAB))
+
+CREATE TRIGGER ADMIN17
+ON MELA
+FOR INSERT
+AS
+BEGIN
+DECLARE @IDMED3 VARCHAR(7)  
+DECLARE @IDLAB1 VARCHAR(7)
+DECLARE @X INT
+select @IDMED3=LOWER(I.ID_MED3),@IDLAB1=I.ID_LAB1 FROM inserted I
+SET @X=ASCII(@IDMED3)
+--DUPLICACION
+if(EXISTS(select * from MELA where @IDMED3=MELA.ID_MED3 and @IDLAB1=MELA.ID_LAB1 AND @X<>ASCII(MELA.ID_MED3)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE MELA
+SET ID_MED3=UPPER(ID_MED3),ID_LAB1=UPPER(ID_LAB1)
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------meco
+CREATE TABLE MECO(
+ID_MED4 VARCHAR(7),
+ID_COM1 VARCHAR(7),
+CONSTRAINT FK_IDMED4 FOREIGN KEY(ID_MED4) REFERENCES MEDICAMENTO(ID_MED),
+CONSTRAINT FK_IDCOM1 FOREIGN KEY(ID_COM1) REFERENCES COMPONENTE(ID_COM))
+
+CREATE TRIGGER ADMIN18
+ON MECO
+FOR INSERT
+AS
+BEGIN
+DECLARE @IDMED4 VARCHAR(7)  
+DECLARE @IDCOM1 VARCHAR(7)
+DECLARE @X INT
+select @IDMED4=LOWER(I.ID_MED4),@IDCOM1=I.ID_COM1 FROM inserted I
+SET @X=ASCII(@IDMED4)
+--DUPLICACION
+if(EXISTS(select * from MECO where @IDMED4=MECO.ID_MED4 and @IDCOM1=MECO.ID_COM1 AND @X<>ASCII(MECO.ID_MED4)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE MECO
+SET ID_MED4=UPPER(ID_MED4),ID_COM1=UPPER(ID_COM1)
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------meun
+CREATE TABLE MEUN(
+ID_MED5 VARCHAR(7),
+ID_UN1 VARCHAR(7),
+CONSTRAINT FK_IDMED5 FOREIGN KEY(ID_MED5) REFERENCES MEDICAMENTO(ID_MED),
+CONSTRAINT FK_IDUN1 FOREIGN KEY(ID_UN1) REFERENCES UNIDAD(ID_UN))
+
+CREATE TRIGGER ADMIN19
+ON MEUN
+FOR INSERT
+AS
+BEGIN
+DECLARE @IDMED5 VARCHAR(7)  
+DECLARE @IDUN1 VARCHAR(7)
+DECLARE @X INT
+select @IDMED5=LOWER(I.ID_MED5),@IDUN1=I.ID_UN1 FROM inserted I
+SET @X=ASCII(@IDMED5)
+--DUPLICACION
+if(EXISTS(select * from MEUN where @IDMED5=MEUN.ID_MED5 and @IDUN1=MEUN.ID_UN1 AND @X<>ASCII(MEUN.ID_MED5)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE MEUN
+SET ID_MED5=UPPER(ID_MED5),ID_UN1=UPPER(ID_UN1)
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------alergia
+CREATE TABLE ALERGIA(
+ID_AL VARCHAR(7) PRIMARY KEY,
+NOM_AL VARCHAR(50))
+
+
+
+CREATE TRIGGER ADMIN20 -----------------------TRIGGER ALERGIA
+ON ALERGIA
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDAL VARCHAR(7)
+DECLARE @NOMAL VARCHAR(50)
+SELECT @IDAL=V.ID_AL,@NOMAL=V.NOM_AL
+FROM inserted V
+--DUPLICIDAD
+if(EXISTS(select * from ALERGIA 
+where @IDAL<>ALERGIA.ID_AL and @NOMAL=ALERGIA.NOM_AL ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro ok'
+update ALERGIA
+set NOM_AL=upper(NOM_AL),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_AL=UPPER(CHAR(65)+CHAR(76)+CHAR(45)+LEFT(LEN(NOM_AL),1)+LEFT(ASCII(UPPER(REVERSE(NOM_AL))),2)+LEFT(NOM_AL,1))
+commit transaction
+end
+END
+------------------------------------------------------------------------------------------------------------------------------delegacion
+
+CREATE TABLE DELEGACION(
+ID_DEL VARCHAR(7) PRIMARY KEY,
+NOM_DEL VARCHAR(50))
+
+
+CREATE TRIGGER ADMIN21 -----------------------TRIGGER DELEGACION
+ON DELEGACION
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDDEL VARCHAR(7)
+DECLARE @NOMDEL VARCHAR(50)
+SELECT @IDDEL=B.ID_DEL,@NOMDEL=B.NOM_DEL
+FROM inserted B
+--DUPLICIDAD
+if(EXISTS(select * from DELEGACION 
+where @IDDEL<>DELEGACION.ID_DEL and @NOMDEL=DELEGACION.NOM_DEL ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'registro ok'
+update DELEGACION
+set NOM_DEL=upper(NOM_DEL),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_DEL=UPPER(CHAR(68)+CHAR(69)+CHAR(45)+LEFT(LEN(NOM_DEL),1)+LEFT(ASCII(UPPER(REVERSE(NOM_DEL))),2)+LEFT(NOM_DEL,1))
+commit transaction
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------enfermedad
+CREATE TABLE ENFERMEDAD(
+ID_EMF VARCHAR(7) PRIMARY KEY,
+NOM_ENF VARCHAR(50))
+
+CREATE TRIGGER ADMIN22
+ON ENFERMEDAD
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDEM VARCHAR(7)
+DECLARE @NOEM VARCHAR(50)
+select @IDEM=I.ID_EMF,@NOEM=I.NOM_ENF
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from ENFERMEDAD where @IDEM<>ENFERMEDAD.ID_EMF and @NOEM=ENFERMEDAD.NOM_ENF ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+update ENFERMEDAD
+set NOM_ENF=upper(NOM_ENF),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_EMF=UPPER(CHAR(69)+CHAR(77)+CHAR(45)+LEFT(LEN(NOM_ENF),1)+LEFT(ASCII(UPPER(REVERSE(NOM_ENF))),2)+LEFT(NOM_ENF,1))
+where ID_EMF=@IDEM
+commit transaction
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------tipopar
+CREATE TABLE TIPOPAR(
+ID_TPR VARCHAR(7) PRIMARY KEY,
+NOM_TPR VARCHAR(50))
+
+CREATE TRIGGER ADMIN23
+ON TIPOPAR
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDTP VARCHAR(7)
+DECLARE @NOMTP VARCHAR(50)
+select @IDTP=I.ID_TPR,@NOMTP=I.NOM_TPR
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from TIPOPAR where @IDTP<>TIPOPAR.ID_TPR and @NOMTP=TIPOPAR.NOM_TPR ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+update TIPOPAR
+set NOM_TPR=upper(NOM_TPR),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_TPR=UPPER(CHAR(84)+CHAR(80)+CHAR(45)+LEFT(LEN(NOM_TPR),1)+LEFT(ASCII(UPPER(REVERSE(NOM_TPR))),2)+LEFT(NOM_TPR,1))
+where id_tpr=@IDTP
+commit transaction
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------tiposangre
+CREATE TABLE TIPO_SANGRE(
+ID_TS VARCHAR(7) PRIMARY KEY,
+NOM_TS VARCHAR(50))
+
+
+CREATE TRIGGER ADMIN24
+ON TIPO_SANGRE
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDTS VARCHAR(7)
+DECLARE @NOMTS VARCHAR(50)
+select @IDTS=I.ID_TS,@NOMTS=I.NOM_TS
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from TIPO_SANGRE where @IDTS<>TIPO_SANGRE.ID_TS and @NOMTS=TIPO_SANGRE.NOM_TS ))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+update TIPO_SANGRE
+set NOM_TS=upper(NOM_TS),
+--ASIGNACION DE CLAVE PRIMARIA
+ID_TS=UPPER(CHAR(84)+CHAR(83)+CHAR(45)+LEFT(LEN(NOM_TS),1)+LEFT(ASCII(UPPER(REVERSE(NOM_TS))),2)+LEFT(NOM_TS,1))
+where id_ts=@IDTS
+commit transaction
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------enfermo
+CREATE TABLE ENFERMO(
+CLAVE_ENF VARCHAR(7) PRIMARY KEY,
+NOM_ENF VARCHAR(200),
+FEHE_ENF DATETIME,
+FEHS_ENF DATETIME,
+ID_CA1 VARCHAR(7),
+ID_CO1 VARCHAR(7),
+ID_DEL1 VARCHAR(7),
+CP_ENF INT,
+ID_EN1 VARCHAR(7),
+ID_TS1 VARCHAR(7),
+CONSTRAINT FK_K FOREIGN KEY(ID_CA1) REFERENCES CALLE(ID_CA),
+CONSTRAINT FK_CO FOREIGN KEY(ID_CO1) REFERENCES COLONIA(ID_COL),
+CONSTRAINT FK_DEL FOREIGN KEY(ID_DEL1) REFERENCES DELEGACION(ID_DEL),
+CONSTRAINT FK_N FOREIGN KEY(ID_EN1) REFERENCES TIPOENF(ID_TE),
+CONSTRAINT FK_TSO FOREIGN KEY(ID_TS1) REFERENCES TIPO_SANGRE(ID_TS),
+CHECK(CP_ENF>0 AND CP_ENF<99999))
+
+
+CREATE TRIGGER ADMIN25
+ON ENFERMO
+FOR INSERT,UPDATE
+AS
+BEGIN
+DECLARE @IDENF VARCHAR(7)
+DECLARE @NOMENF VARCHAR(50)
+DECLARE @CPENF INT
+select @IDENF=I.CLAVE_ENF,@NOMENF=I.NOM_ENF,@CPENF=I.CP_ENF
+FROM inserted I
+--DUPLICIDAD
+if(EXISTS(select * from ENFERMO where @IDENF<>ENFERMO.CLAVE_ENF and @NOMENF=ENFERMO.NOM_ENF AND @CPENF=ENFERMO.CP_ENF))
+begin
+print'datos duplicados'
+rollback transaction
+end
+else
+begin
+print'DATOS ALMACENADOS'
+update ENFERMO
+set NOM_ENF=upper(NOM_ENF),
+--ASIGNACION DE CLAVE PRIMARIA
+CLAVE_ENF=UPPER(CHAR(69)+CHAR(78)+CHAR(45)+LEFT(LEN(NOM_ENF),1)+LEFT(ASCII(UPPER(REVERSE(NOM_ENF))),2)+LEFT(NOM_ENF,1))
+where CLAVE_ENF=@IDENF
+commit transaction
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------enfer
+CREATE TABLE  ENFER(
+CLAVE_E2 VARCHAR(7),
+ID_ENF2 VARCHAR(7),
+CONSTRAINT FK_E2 FOREIGN KEY(CLAVE_E2) REFERENCES ENFERMO(CLAVE_ENF),
+CONSTRAINT FK_EF2 FOREIGN KEY(ID_ENF2) REFERENCES ENFERMEDAD(ID_EMF))
+
+CREATE TRIGGER ADMIN26
+ON ENFER
+FOR INSERT
+AS
+BEGIN
+DECLARE @CLAE2 VARCHAR(7)  
+DECLARE @IDENF2 VARCHAR(7)
+DECLARE @X INT
+select @CLAE2=LOWER(I.CLAVE_E2),@IDENF2=I.ID_ENF2 FROM inserted I
+SET @X=ASCII(@CLAE2)
+--DUPLICACION
+if(EXISTS(select * from ENFER where @CLAE2=ENFER.CLAVE_E2 and @IDENF2=ENFER.ID_ENF2 AND @X<>ASCII(ENFER.CLAVE_E2)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE ENFER
+SET CLAVE_E2=UPPER(CLAVE_E2),ID_ENF2=UPPER(ID_ENF2)
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------tifer
+CREATE TABLE TIFER(
+CLAVE_E3 VARCHAR(7),
+ID_TEL1 VARCHAR(7),
+TELEFONO VARCHAR(10),
+CONSTRAINT FK_CE7 FOREIGN KEY(CLAVE_E3) REFERENCES ENFERMO(CLAVE_ENF),
+CONSTRAINT FK_TE1 FOREIGN KEY(ID_TEL1) REFERENCES TIPOTEL(ID_TEL))
+
+
+CREATE TRIGGER ADMIN27
+ON TIFER
+FOR INSERT
+AS
+BEGIN
+DECLARE @CLAE3 VARCHAR(7)  
+DECLARE @IDTEL1 VARCHAR(7)
+DECLARE @X INT
+select @CLAE3=LOWER(I.CLAVE_E3),@IDTEL1=I.ID_TEL1 FROM inserted I
+SET @X=ASCII(@CLAE3)
+--DUPLICACION
+if(EXISTS(select * from TIFER where @CLAE3=TIFER.CLAVE_E3 and @IDTEL1=TIFER.ID_TEL1 AND @X<>ASCII(TIFER.CLAVE_E3)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE ALEENF
+SET CLAVE_E4=UPPER(CLAVE_E4),ID_ALE1=UPPER(ID_ALE1)
+end
+END
+
+
+
+------------------------------------------------------------------------------------------------------------------------------aleenf
+CREATE TABLE ALEENF(
+CLAVE_E4 VARCHAR(7),
+ID_ALE1 VARCHAR(7),
+CONSTRAINT FK_CE3 FOREIGN KEY(CLAVE_E4) REFERENCES ENFERMO(CLAVE_ENF),
+CONSTRAINT FK_ALE FOREIGN KEY(ID_ALE1) REFERENCES ALERGIA(ID_AL))
+
+
+CREATE TRIGGER ADMIN28
+ON ALEENF
+FOR INSERT
+AS
+BEGIN
+DECLARE @CLAE4 VARCHAR(7)  
+DECLARE @IDALE1 VARCHAR(7)
+DECLARE @X INT
+select @CLAE4=LOWER(I.CLAVE_E4),@IDALE1=I.ID_ALE1 FROM inserted I
+SET @X=ASCII(@CLAE4)
+--DUPLICACION
+if(EXISTS(select * from ALEENF where @CLAE4=ALEENF.CLAVE_E4 and @IDALE1=ALEENF.ID_ALE1 AND @X<>ASCII(ALEENF.CLAVE_E4)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE ALEENF
+SET CLAVE_E4=UPPER(CLAVE_E4),ID_ALE1=UPPER(ID_ALE1)
+end
+END
+
+
+------------------------------------------------------------------------------------------------------------------------------tipoen
+CREATE TABLE TIPOEN(
+CLAVE_E5 VARCHAR(7),
+ID_TPAR1 VARCHAR(7),
+CONSTRAINT FK_RDR FOREIGN KEY(CLAVE_E5) REFERENCES ENFERMO(CLAVE_ENF),
+CONSTRAINT FK_AL FOREIGN KEY(ID_TPAR1) REFERENCES TIPOPAR(ID_TPR))
+
+
+CREATE TRIGGER ADMIN29
+ON TIPOEN
+FOR INSERT
+AS
+BEGIN
+DECLARE @CLAE5 VARCHAR(7)  
+DECLARE @IDTPAR1 VARCHAR(7)
+DECLARE @X INT
+select @CLAE5=LOWER(I.CLAVE_E5),@IDTPAR1=I.ID_TPAR1 FROM inserted I
+SET @X=ASCII(@CLAE5)
+--DUPLICACION
+if(EXISTS(select * from TIPOEN where @CLAE5=TIPOEN.CLAVE_E5 and @IDTPAR1=TIPOEN.ID_TPAR1 AND @X<>ASCII(TIPOEN.CLAVE_E5)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE TIPOEN
+SET CLAVE_E5=UPPER(CLAVE_E5),ID_TPAR1=UPPER(ID_TPAR1)
+end
+END
+
+------------------------------------------------------------------------------------------------------------------------------endia
+CREATE TABLE ENDIA(
+NUM_M VARCHAR(7),
+RECON_E VARCHAR(200),
+FECHA_PC DATETIME,
+FECHA_C DATETIME,
+TIEM_E VARCHAR(200),
+STAD_E VARCHAR(200),
+ID_D1 VARCHAR(7),
+ID_DIAG1 VARCHAR(7),
+CLAVE_E6 VARCHAR(7),
+CONSTRAINT FK_DD FOREIGN KEY(ID_D1) REFERENCES  DOCTOR (ID_D),
+CONSTRAINT FK_FR FOREIGN KEY(ID_DIAG1 ) REFERENCES DIAGNOSTICO(ID_DIAG),
+CONSTRAINT FK_NN FOREIGN KEY(CLAVE_E6) REFERENCES ENFERMO(CLAVE_ENF),
+CONSTRAINT PK_HH PRIMARY KEY (NUM_M))
+
+CREATE TRIGGER ADMIN30
+ON TIPOEN
+FOR INSERT
+AS
+BEGIN
+DECLARE @CLAE5 VARCHAR(7)  
+DECLARE @IDTPAR1 VARCHAR(7)
+DECLARE @X INT
+select @CLAE5=LOWER(I.CLAVE_E5),@IDTPAR1=I.ID_TPAR1 FROM inserted I
+SET @X=ASCII(@CLAE5)
+--DUPLICACION
+if(EXISTS(select * from TIPOEN where @CLAE5=TIPOEN.CLAVE_E5 and @IDTPAR1=TIPOEN.ID_TPAR1 AND @X<>ASCII(TIPOEN.CLAVE_E5)))
+begin
+print'YA EXISTE LA RELACION'
+rollback transaction
+end
+else
+begin
+print'registro con exito'
+commit transaction
+UPDATE TIPOEN
+SET CLAVE_E5=UPPER(CLAVE_E5),ID_TPAR1=UPPER(ID_TPAR1)
+end
+END
+
+
+
+------------------------------------------------------------------------------------------------------------------------------meen
+CREATE TABLE MEEN(
+CLAVE_E7 VARCHAR(7),
+ID_MED6 VARCHAR(7),
+DOSIS_MR VARCHAR(200),
+TIEMPO DATETIME,
+CONSTRAINT FK_CL5 FOREIGN KEY(CLAVE_E7) REFERENCES ENFERMO(CLAVE_ENF),
+CONSTRAINT FK_FDS FOREIGN KEY(ID_MED6) REFERENCES MEDICAMENTO(ID_MED))
+
+
+
+
+
+
+
+
+select *
+from sysobjects
+where xtype='tr'
+
+drop trigger admin16
+drop trigger admin15
+drop trigger admin14
+drop trigger admin13
+drop trigger admin12
+drop trigger admin11
+drop trigger admin10
+drop trigger admin9
+drop trigger admin8
+drop trigger admin7
+drop trigger admin6
+drop trigger admin5
+drop trigger admin4
+drop trigger admin3
+drop trigger admin2
+drop trigger admin1
+
+drop database SAVM2

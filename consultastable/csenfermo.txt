@@ -1,0 +1,32 @@
+  DefaultTableModel tabla=new DefaultTableModel(); 
+try{
+        Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
+        Connection con=DriverManager.getConnection("jdbc:odbc:hospital");
+        
+        Statement stmt=con.createStatement();
+        ResultSet rs=stmt.executeQuery("exec csenfermo");
+        tabla.addColumn("ID de la enfermo");
+        tabla.addColumn("Nombre del enfermo");
+        tabla.addColumn("Fecha de entrada");
+        tabla.addColumn("Fecha de salida");
+        tabla.addColumn("CALLE");
+        tabla.addColumn("Colonia");
+        tabla.addColumn("Delegacion");
+        tabla.addColumn("Codigo postal");
+        tabla.addColumn("Tipo de enfermedad");
+        tabla.addColumn("Tipo de sangre");
+
+
+
+        while(rs.next()){
+            Object dato[]=new Object[10];
+            for(int i=0;i<10;i++){
+                dato[i]=rs.getString(i+1);
+            }
+            tabla.addRow(dato);
+          }
+         this.TA1.setModel(tabla);
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(null,"Error"+e);
+        }

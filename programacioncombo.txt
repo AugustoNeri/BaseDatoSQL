@@ -1,0 +1,53 @@
+//Programa ejemplo del jtable
+
+     DefaultTableModel tabla=new DefaultTableModel();
+        
+        try{
+        Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
+        Connection con=DriverManager.getConnection("jdbc:odbc:airsoft");
+        
+        Statement stmt=con.createStatement();
+        ResultSet rs=stmt.executeQuery("Select COD_HOTEL, NOM_HOTEL, DIR_HOTEL, TEL_HOTEL, NUM_PLAZA_HOTEL, CIUDAD_HOTEL FROM HOTEL INNER JOIN CIUDAD ON COD_CIUDAD=COD_CIUDAD1");
+        tabla.addColumn("CODIGO HOTEL");
+        tabla.addColumn("NOMBRE");
+        tabla.addColumn("DIRECCION");
+        tabla.addColumn("TELEFONO");
+        tabla.addColumn("NUMERO DE PLAZAS TOTALES");
+        tabla.addColumn("CIUDAD");
+        while(rs.next()){
+            Object dato[]=new Object[6];
+            for(int i=0;i<6;i++){
+                dato[i]=rs.getString(i+1);
+            }
+            tabla.addRow(dato);
+          }
+         this.TA1.setModel(tabla);
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(null,"Error"+e);
+        }
+
+//Programa llenar datos en un combo box
+
+ private void id_ciudad(String x){
+        try {
+            Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");//Permite elegir los controlafdores en los cuales hara la conexion entre java y la base de datos
+            Connection con=DriverManager.getConnection("jdbc:odbc:airsoft");//Permite realizar la conexion
+       Statement stmt=con.createStatement();//Se reconocen las instrucciones de SQL
+        ResultSet rs=stmt.executeQuery("SELECT COD_CIUDAD FROM CIUDAD WHERE CIUDAD_HOTEL='"+x+"'");//mete los valores a la base dedatos
+        
+        while(rs.next()){
+            T9.setText(rs.getString("COD_CIUDAD"));
+            
+        }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(AHotel.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(AHotel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }  
+
+
+//Esta parte de codigo va dentro del evento cuando le das en el boton de insertar
+        ciudad=T6.getSelectedItem().toString();
+        id_ciudad(ciudad);

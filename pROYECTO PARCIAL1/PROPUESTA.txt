@@ -1,0 +1,6 @@
+--ENCRIPTACION
+UPDATE ESPECIALIDAD
+SET NOM_ED=reverse(replace((replace((replace((replace((replace((replace((NOM_ED),'O','#')),'U','*')),'M','-')),'C','+')),'A','$')),'R','7'))
+--DESENCRIPTACIÓN
+UPDATE ESPECIALIDAD
+SET NOM_ED=reverse(replace((replace((replace((replace((replace((replace((NOM_ED),'#','O')),'*','U')),'-','M')),'+','C')),'$','A')),'7','R'))
